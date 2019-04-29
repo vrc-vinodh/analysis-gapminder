@@ -1,0 +1,127 @@
+---
+title: "Data Visulaization on Gapminder Dataframe"
+author: "Vinodh Reddy Chennu"
+date: "Reg n.o: 18MBMB09; MBA Business Analytics"
+output:
+  
+  
+  ioslides_presentation: default
+  beamer_presentation: default
+  slidy_presentation: default
+---
+<style type="text/css">
+
+body, td {
+   font-size: 14px;
+}
+code.r{
+  font-size: 12px;
+}
+pre {
+  font-size: 12px
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+```
+
+## Gapminder DataFrame
+Gapminder data on life expectancy, GDP per capita and population by country.
+
+>The main data frame 'gapminder' has 1704 rows and 6 variables(columns).
+
+###**Variables includes:**
+1. **country**: factor with 142 levels.
+2. **continent**: factor with 5 levels.
+3. **year**: ranges from 1952 to 2007 in increments of 5 years.
+4. **lifeExp**: life expectancy at birth, in years.
+5. **pop**: population.
+6. **gdpPercap**: GDP per capita (US$, inflation-adjusted).
+
+## Summary of Gapminder Dataframe
+
+```{r gapminder, size="huge",echo=TRUE}
+summary(gapminder::gapminder)
+```
+
+## Plotted Visualizations
+- **Bar Chart** | TotalPop by Continents
+- **Box Plot** | LifeExp by continents
+- **ScatterPlot** | gdpPercap vs lifeExp
+- **ScatterPlot** | gdpPercap vs lifeExp on log scale with continents differentiated with colors & pop with size
+- **ScatterPlots with facetwrap** | gdpPercap vs LifeExp of each continent
+- **Line graph** | Total population of continents over years
+- **Line graph** | Population over the years and continents
+
+##Create dataframe with filter year=2007
+```{r dataset 2007, echo=TRUE}
+gapminder_year2007 <- gapminder::gapminder %>% filter(year == 2007)
+gapminder_year2007
+```
+
+##Population by continents
+
+```{r bar chart Mean life by continent , echo=TRUE}
+ggplot(gapminder_year2007, aes(x = continent, y = pop)) + geom_col()
+```
+
+##LifeExp by Continents
+
+```{r boxplot, echo=TRUE}
+ggplot(gapminder_year2007, aes(x = continent, y = lifeExp)) + geom_boxplot()
+```
+
+## gdpPercap vs lifeExp
+
+```{r scatter plot pop vs lifexep, echo=TRUE}
+ggplot(gapminder_year2007, aes(x = gdpPercap, y = lifeExp)) + geom_point()
+```
+
+## gdpPercap vs lifeExp with more options
+
+```{r scatter plot, echo=TRUE}
+ggplot(gapminder_year2007, aes(x = gdpPercap, y = lifeExp, color = continent, size=pop)) + geom_point() + scale_x_log10()
+```
+
+##gdpPercap vs LifeExp of each continent
+
+```{r facetyear, echo=TRUE}
+ggplot(gapminder_year2007, aes(x = gdpPercap, y = lifeExp,color = continent, size=pop)) + geom_point() + scale_x_log10() +
+  facet_wrap(~ continent)
+```
+
+## Created dataframe with groupby(year)
+
+```{r lineplot2, echo=TRUE}
+by_year <- gapminder::gapminder %>% group_by(year) %>% summarize(totalPop = sum(as.numeric(pop)), meanLifeExp = mean(lifeExp))
+by_year
+```
+
+## Total population over the years
+
+```{r pop over years, echo=TRUE}
+ggplot(by_year, aes(x = year, y = totalPop)) + geom_line()
+```
+
+##Data with groupby(year,continent)
+```{r by_year_continent,echo=TRUE}
+by_year_continent <- gapminder::gapminder %>% group_by(year, continent) %>% summarize(totalPop = sum(as.numeric(pop)),
+meanLifeExp = mean(lifeExp))
+by_year_continent
+```
+
+##Population over the year by continents
+
+```{r Visualizing population by year and continent, echo=TRUE}
+ggplot(by_year_continent, aes(x = year, y = totalPop, color = continent)) + geom_line() + expand_limits(y = 0)
+```
+
+## Conclusions
+
+1. Asia continent has the higher population Whereas Ocenia continent has the least population.
+2. Median lifeExp of Africa Continent is least and Ocenia continent is the highest.
+3. On gdpPerCap vs lifeExp plots, most of the Africa countries lies at bottom left whereas Americas, Ocieania and European continents lie at the top right. There is a correlation between lifeExp and gdpPercap.
+4. Total Population on the World increases over the time.
+5. Total Population of Asia, Africa, Americas continents increases rapidly Whereas Europe and Ocenia changes very slightly over the time.
